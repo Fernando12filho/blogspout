@@ -1,0 +1,572 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.7;
+    color: #333;
+    background-color: #fff;
+}
+
+/* Site layout */
+.site-header {
+    border-bottom: 1px solid #eee;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.site-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.site-title a:hover {
+    text-decoration: underline;
+}
+
+.site-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+.site-nav a {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.site-nav a:hover {
+    text-decoration: underline;
+}
+
+/* Main content */
+.site-main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1rem 2rem;
+}
+
+/* Posts feed and list */
+.posts-feed,
+.posts-list {
+    width: 100%;
+}
+
+.post-card {
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+    border-left: 0;
+    transition: background-color 0.2s;
+}
+
+.post-card--pout {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-left: 4px solid #ccc;
+    padding-left: 1.25rem;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.post-author {
+    font-weight: 600;
+}
+
+.author-name {
+    color: #333;
+}
+
+.post-date {
+    color: #999;
+}
+
+.post-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.post-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.post-title a:hover {
+    text-decoration: underline;
+}
+
+.post-excerpt {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Single post page */
+.post {
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+}
+
+.post--pout {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-left: 4px solid #ccc;
+    padding-left: 1.25rem;
+}
+
+.post-header {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.post-author-info {
+    font-weight: 600;
+    color: #333;
+}
+
+.post-published-date {
+    color: #999;
+}
+
+.post-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.post-content {
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+    margin: 1.5rem 0 0.75rem;
+    font-weight: bold;
+}
+
+.post-content h1 { font-size: 1.5rem; }
+.post-content h2 { font-size: 1.35rem; }
+.post-content h3 { font-size: 1.2rem; }
+
+.post-content p {
+    margin-bottom: 1rem;
+}
+
+.post-content ul,
+.post-content ol {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+}
+
+.post-content a {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.post-content a:hover {
+    color: #0052a3;
+}
+
+.post-content code {
+    background-color: #f5f5f5;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.post-content pre {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.post-content pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.post-content blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #666;
+}
+
+.post-content .footnote {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.post-content .footnote ol {
+    margin-left: 1.5rem;
+}
+
+/* Comments section */
+.comments-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.comments-section h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment {
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+}
+
+.comment-meta {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #333;
+}
+
+.comment-body {
+    color: #333;
+    line-height: 1.6;
+}
+
+.comment-body a {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+/* About page */
+.about-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.about-page h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.about-page section {
+    margin-bottom: 2rem;
+}
+
+.about-page h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.about-page p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+/* Pout profile */
+.pout-profile {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.pout-profile h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.pout-profile > p {
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+/* Admin pages */
+.admin-dashboard,
+.admin-login,
+.admin-new-post,
+.admin-edit-post,
+.admin-review-post {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.admin-dashboard h1,
+.admin-login h1,
+.admin-new-post h1,
+.admin-edit-post h1,
+.admin-review-post h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-actions,
+.review-actions,
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #0066cc;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.button:hover {
+    background-color: #0052a3;
+}
+
+.button--secondary {
+    background-color: #999;
+}
+
+.button--secondary:hover {
+    background-color: #777;
+}
+
+.button--danger {
+    background-color: #cc3333;
+}
+
+.button--danger:hover {
+    background-color: #aa0000;
+}
+
+.button--primary {
+    background-color: #00aa44;
+}
+
+.button--primary:hover {
+    background-color: #008833;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 300px;
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.form-group input[type="checkbox"] + label {
+    display: inline;
+    margin-bottom: 0;
+}
+
+.error {
+    color: #cc3333;
+    margin-bottom: 1rem;
+}
+
+/* Admin tables */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.admin-table thead {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table a {
+    color: #0066cc;
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.admin-table a:hover {
+    text-decoration: underline;
+}
+
+/* Filters */
+.filters {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+}
+
+.filters form {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.filters select {
+    padding: 0.3rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.filters button {
+    padding: 0.5rem 1rem;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background-color: #0052a3;
+}
+
+/* Footer */
+.site-footer {
+    border-top: 1px solid #eee;
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 3rem;
+}
+
+.site-footer a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .site-nav ul {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .post-title {
+        font-size: 1.1rem;
+    }
+    
+    .filters form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filters select {
+        width: 100%;
+    }
+    
+    .admin-actions {
+        flex-direction: column;
+    }
+    
+    .button {
+        width: 100%;
+        text-align: center;
+    }
+}

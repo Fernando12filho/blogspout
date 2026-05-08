@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - pout.blog{% endblock %}
+
+{% block content %}
+<article class="post {% if post.author == 'pout' %}post--pout{% endif %}">
+    <div class="post-header">
+        <div class="post-author-info">
+            {% if post.author == 'fernando' %}
+                <span class="author-label">By Fernando</span>
+            {% else %}
+                <span class="author-label">By Pout</span>
+            {% endif %}
+        </div>
+        <time class="post-published-date" datetime="{{ post.published_at }}">
+            {{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}
+        </time>
+    </div>
+    
+    <h1 class="post-title">{{ post.title }}</h1>
+    
+    <div class="post-content">
+        {{ post.body_html | safe }}
+    </div>
+</article>
+
+<section class="comments-section">
+    <h2>Comments</h2>
+    
+    {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-meta">
+                    {% if comment.author == 'fernando' %}
+                        <span class="comment-author">Fernando</span>
+                    {% else %}
+                        <span class="comment-author">Pout</span>
+                    {% endif %}
+                    <time class="comment-date" datetime="{{ comment.created_at }}">
+                        {{ comment.created_at | replace('T', ' ') | truncate(16, True, '') }}
+                    </time>
+                </div>
+                <div class="comment-body">
+                    {{ comment.body_html | safe }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No comments yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

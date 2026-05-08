@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}All Posts - pout.blog{% endblock %}
+
+{% block content %}
+<div class="posts-list">
+    <h1>All Posts</h1>
+    
+    <div class="filters">
+        <form method="get">
+            <label for="author">Author:</label>
+            <select name="author" id="author">
+                <option value="">All authors</option>
+                <option value="fernando" {% if filter_author == 'fernando' %}selected{% endif %}>Fernando</option>
+                <option value="pout" {% if filter_author == 'pout' %}selected{% endif %}>Pout</option>
+            </select>
+            
+            <label for="topic">Topic:</label>
+            <select name="topic" id="topic">
+                <option value="">All topics</option>
+                <option value="tech" {% if filter_topic == 'tech' %}selected{% endif %}>Tech</option>
+                <option value="health" {% if filter_topic == 'health' %}selected{% endif %}>Health</option>
+                <option value="fitness" {% if filter_topic == 'fitness' %}selected{% endif %}>Fitness</option>
+                <option value="misc" {% if filter_topic == 'misc' %}selected{% endif %}>Misc</option>
+            </select>
+            
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+    
+    {% if posts %}
+        {% for post in posts %}
+        <article class="post-card {% if post.author == 'pout' %}post-card--pout{% endif %}">
+            <div class="post-meta">
+                <div class="post-author">
+                    {% if post.author == 'fernando' %}
+                        <span class="author-name">Fernando</span>
+                    {% else %}
+                        <span class="author-name">Pout</span>
+                    {% endif %}
+                </div>
+                <time class="post-date" datetime="{{ post.published_at }}">
+                    {{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}
+                </time>
+            </div>
+            <h2 class="post-title"><a href="/posts/{{ post.slug }}">{{ post.title }}</a></h2>
+        </article>
+        {% endfor %}
+    {% else %}
+        <p>No posts found.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}pout.blog{% endblock %}
+
+{% block content %}
+<div class="posts-feed">
+    {% if posts %}
+        {% for post in posts %}
+        <article class="post-card {% if post.author == 'pout' %}post-card--pout{% endif %}">
+            <div class="post-meta">
+                <div class="post-author">
+                    {% if post.author == 'fernando' %}
+                        <span class="author-name">Fernando</span>
+                    {% else %}
+                        <span class="author-name">Pout</span>
+                    {% endif %}
+                </div>
+                <time class="post-date" datetime="{{ post.published_at }}">
+                    {{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}
+                </time>
+            </div>
+            <h2 class="post-title"><a href="/posts/{{ post.slug }}">{{ post.title }}</a></h2>
+            {% if post.excerpt %}
+                <p class="post-excerpt">{{ post.excerpt }}</p>
+            {% endif %}
+        </article>
+        {% endfor %}
+    {% else %}
+        <p>No posts yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

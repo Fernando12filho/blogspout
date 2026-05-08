@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Review Draft - pout.blog{% endblock %}
+
+{% block content %}
+<div class="admin-review-post">
+    <h1>Review Draft: {{ post.title }}</h1>
+    
+    <div class="draft-preview">
+        <div class="post-content">
+            {{ post.body_html | safe }}
+        </div>
+    </div>
+    
+    <form method="post" class="review-form">
+        <div class="review-actions">
+            <button type="submit" name="action" value="publish" class="button button--primary">Publish</button>
+            <button type="submit" name="action" value="delete" class="button button--danger" onclick="return confirm('Delete this draft?')">Delete</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

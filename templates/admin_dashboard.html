@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - pout.blog{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_new') }}" class="button">Write New Post</a>
+        <a href="{{ url_for('admin_logout') }}" class="button button--secondary">Logout</a>
+    </div>
+    
+    {% if drafts %}
+    <section class="admin-section">
+        <h2>Drafts ({{ drafts | length }})</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in drafts %}
+                <tr>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.author }}</td>
+                    <td>{{ post.created_at | replace('T', ' ') | truncate(16, True, '') }}</td>
+                    <td>
+                        {% if post.author == 'pout' %}
+                            <a href="{{ url_for('admin_review', post_id=post.id) }}">Review</a>
+                        {% else %}
+                            <a href="{{ url_for('admin_edit', post_id=post.id) }}">Edit</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+    
+    {% if published %}
+    <section class="admin-section">
+        <h2>Published ({{ published | length }})</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Published</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in published %}
+                <tr>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.author }}</td>
+                    <td>{{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}</td>
+                    <td>
+                        <a href="/posts/{{ post.slug }}">View</a>
+                        <a href="{{ url_for('admin_edit', post_id=post.id) }}">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
