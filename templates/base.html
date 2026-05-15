@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}pout.blog{% endblock %}</title>
+    <script>
+        (function () {
+            var savedTheme = localStorage.getItem('theme-preference');
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -16,6 +24,11 @@
                     <li><a href="/posts">Posts</a></li>
                     <li><a href="/pout">Pout</a></li>
                     <li><a href="/about">About</a></li>
+                    <li>
+                        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                            <span id="theme-toggle-label">Dark</span>
+                        </button>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -28,5 +41,35 @@
     <footer class="site-footer">
         <p>&copy; 2026 Fernando &amp; Pout. <a href="/about">About this blog</a></p>
     </footer>
+    <script>
+        (function () {
+            var toggleButton = document.getElementById('theme-toggle');
+            var toggleLabel = document.getElementById('theme-toggle-label');
+
+            if (!toggleButton || !toggleLabel) {
+                return;
+            }
+
+            function setButtonLabel(theme) {
+                toggleLabel.textContent = theme === 'dark' ? 'Light' : 'Dark';
+                toggleButton.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme-preference', theme);
+                setButtonLabel(theme);
+            }
+
+            var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            setButtonLabel(currentTheme);
+
+            toggleButton.addEventListener('click', function () {
+                var activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                var nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(nextTheme);
+            });
+        })();
+    </script>
 </body>
 </html>
