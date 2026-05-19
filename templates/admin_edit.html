@@ -1,44 +1,130 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Post - pout.blog{% endblock %}
+{% block title %}Edit — pout.blog{% endblock %}
 
 {% block content %}
-<div class="admin-edit-post">
-    <h1>Edit Post</h1>
-    
-    <form method="post" class="post-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" value="{{ post.title }}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="topic">Topic:</label>
-            <select id="topic" name="topic">
-                <option value="misc" {% if post.topic == 'misc' %}selected{% endif %}>Misc</option>
-                <option value="tech" {% if post.topic == 'tech' %}selected{% endif %}>Tech</option>
-                <option value="health" {% if post.topic == 'health' %}selected{% endif %}>Health</option>
-                <option value="fitness" {% if post.topic == 'fitness' %}selected{% endif %}>Fitness</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="body">Body (Markdown):</label>
-            <textarea id="body" name="body" rows="15" required>{{ post.body_md }}</textarea>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="publish" {% if post.draft == 0 %}checked{% endif %}>
-                Published
+<form method="post" id="post-form" class="admin-writer">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="publish" id="publish-flag" value="{{ 'on' if post.draft == 0 else '' }}">
+
+    <div class="writer-header">
+        <input
+            type="text"
+            name="title"
+            class="writer-title-input"
+            value="{{ post.title }}"
+            autocomplete="off"
+            required
+        >
+        <div class="writer-meta">
+            <label class="writer-meta-label">
+                Topic
+                <select name="topic">
+                    <option value="misc" {% if post.topic == 'misc' %}selected{% endif %}>Misc</option>
+                    <option value="tech" {% if post.topic == 'tech' %}selected{% endif %}>Tech</option>
+                    <option value="health" {% if post.topic == 'health' %}selected{% endif %}>Health</option>
+                    <option value="fitness" {% if post.topic == 'fitness' %}selected{% endif %}>Fitness</option>
+                </select>
             </label>
+            <span class="writer-wordcount">{{ 'Published' if post.draft == 0 else 'Draft' }}</span>
+            <span id="word-count" class="writer-wordcount">0 words</span>
+            <span id="save-status" class="writer-status"></span>
+            <div class="writer-actions">
+                <button type="submit" class="button button--secondary">Save</button>
+                {% if post.draft == 1 %}
+                <button type="button" id="btn-publish" class="button button--primary">Publish</button>
+                {% endif %}
+                <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Cancel</a>
+            </div>
         </div>
-        
-        <div class="form-actions">
-            <button type="submit">Save Changes</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Cancel</a>
+    </div>
+
+    <div class="writer-body">
+        <div class="writer-pane">
+            <textarea
+                name="body"
+                id="post-body"
+                class="writer-textarea"
+                required
+            >{{ post.body_md }}</textarea>
         </div>
-    </form>
-</div>
+        <div class="preview-pane post-content" id="preview-pane">
+            <p class="writer-placeholder">Loading preview…</p>
+        </div>
+    </div>
+</form>
+
+<script>
+(function () {
+    const form        = document.getElementById('post-form');
+    const textarea    = document.getElementById('post-body');
+    const publishFlag = document.getElementById('publish-flag');
+    const preview     = document.getElementById('preview-pane');
+    const wordCountEl = document.getElementById('word-count');
+    const saveStatus  = document.getElementById('save-status');
+    const btnPublish  = document.getElementById('btn-publish');
+    const csrfToken   = form.querySelector('[name=csrf_token]').value;
+
+    function updateWordCount() {
+        const n = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+        wordCountEl.textContent = n + (n === 1 ? ' word' : ' words');
+    }
+
+    function autoGrow() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    let previewTimer;
+    function schedulePreview() {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(() => {
+            const body = textarea.value.trim();
+            if (!body) { preview.innerHTML = '<p class="writer-placeholder">Nothing to preview.</p>'; return; }
+            const fd = new FormData();
+            fd.append('body', body);
+            fd.append('csrf_token', csrfToken);
+            fetch('/admin/preview', { method: 'POST', body: fd })
+                .then(r => r.text())
+                .then(html => { preview.innerHTML = html; })
+                .catch(() => {});
+        }, 500);
+    }
+
+    let autosaveTimer;
+    function scheduleUnsavedNotice() {
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => {
+            saveStatus.textContent = 'unsaved changes';
+        }, 800);
+    }
+
+    if (btnPublish) {
+        btnPublish.addEventListener('click', () => {
+            publishFlag.value = 'on';
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+        });
+    }
+
+    form.addEventListener('submit', () => { saveStatus.textContent = ''; });
+
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+            e.preventDefault();
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+    });
+
+    textarea.addEventListener('input', () => {
+        autoGrow();
+        updateWordCount();
+        scheduleUnsavedNotice();
+        schedulePreview();
+    });
+
+    updateWordCount();
+    autoGrow();
+    schedulePreview();
+})();
+</script>
 {% endblock %}

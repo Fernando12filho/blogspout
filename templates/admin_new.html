@@ -1,44 +1,152 @@
 {% extends "base.html" %}
 
-{% block title %}Write New Post - pout.blog{% endblock %}
+{% block title %}Write — pout.blog{% endblock %}
 
 {% block content %}
-<div class="admin-new-post">
-    <h1>Write New Post</h1>
-    
-    <form method="post" class="post-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="topic">Topic:</label>
-            <select id="topic" name="topic">
-                <option value="misc">Misc</option>
-                <option value="tech">Tech</option>
-                <option value="health">Health</option>
-                <option value="fitness">Fitness</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="body">Body (Markdown):</label>
-            <textarea id="body" name="body" rows="15" required></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="publish">
-                Publish immediately (otherwise save as draft)
+<form method="post" id="post-form" class="admin-writer">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="publish" id="publish-flag" value="">
+
+    <div class="writer-header">
+        <input
+            type="text"
+            name="title"
+            class="writer-title-input"
+            placeholder="Title"
+            autocomplete="off"
+            required
+        >
+        <div class="writer-meta">
+            <label class="writer-meta-label">
+                Topic
+                <select name="topic">
+                    <option value="misc">Misc</option>
+                    <option value="tech">Tech</option>
+                    <option value="health">Health</option>
+                    <option value="fitness">Fitness</option>
+                </select>
             </label>
+            <span id="word-count" class="writer-wordcount">0 words</span>
+            <span id="save-status" class="writer-status"></span>
+            <div class="writer-actions">
+                <button type="submit" class="button button--secondary">Save draft</button>
+                <button type="button" id="btn-publish" class="button button--primary">Publish</button>
+            </div>
         </div>
-        
-        <div class="form-actions">
-            <button type="submit">Save Post</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Cancel</a>
+    </div>
+
+    <div class="writer-body">
+        <div class="writer-pane">
+            <textarea
+                name="body"
+                id="post-body"
+                class="writer-textarea"
+                placeholder="Write in Markdown…"
+                required
+            ></textarea>
         </div>
-    </form>
-</div>
+        <div class="preview-pane post-content" id="preview-pane">
+            <p class="writer-placeholder">Start writing to see a preview.</p>
+        </div>
+    </div>
+</form>
+
+<script>
+(function () {
+    const form        = document.getElementById('post-form');
+    const textarea    = document.getElementById('post-body');
+    const titleInput  = form.querySelector('[name=title]');
+    const publishFlag = document.getElementById('publish-flag');
+    const preview     = document.getElementById('preview-pane');
+    const wordCountEl = document.getElementById('word-count');
+    const saveStatus  = document.getElementById('save-status');
+    const btnPublish  = document.getElementById('btn-publish');
+    const csrfToken   = form.querySelector('[name=csrf_token]').value;
+    const DRAFT_KEY   = 'writer-new';
+
+    function updateWordCount() {
+        const n = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+        wordCountEl.textContent = n + (n === 1 ? ' word' : ' words');
+    }
+
+    function autoGrow() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    let autosaveTimer;
+    function scheduleAutosave() {
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => {
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify({
+                    title: titleInput.value,
+                    body: textarea.value,
+                }));
+            } catch (_) {}
+            saveStatus.textContent = 'saved locally';
+            setTimeout(() => { saveStatus.textContent = ''; }, 2000);
+        }, 1500);
+    }
+
+    let previewTimer;
+    function schedulePreview() {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(() => {
+            const body = textarea.value.trim();
+            if (!body) {
+                preview.innerHTML = '<p class="writer-placeholder">Start writing to see a preview.</p>';
+                return;
+            }
+            const fd = new FormData();
+            fd.append('body', body);
+            fd.append('csrf_token', csrfToken);
+            fetch('/admin/preview', { method: 'POST', body: fd })
+                .then(r => r.text())
+                .then(html => { preview.innerHTML = html; })
+                .catch(() => {});
+        }, 500);
+    }
+
+    // Restore from localStorage
+    try {
+        const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if (saved && !titleInput.value && !textarea.value) {
+            if (saved.title) titleInput.value = saved.title;
+            if (saved.body) { textarea.value = saved.body; autoGrow(); schedulePreview(); }
+            updateWordCount();
+            saveStatus.textContent = 'restored local draft';
+            setTimeout(() => { saveStatus.textContent = ''; }, 3000);
+        }
+    } catch (_) {}
+
+    textarea.addEventListener('input', () => {
+        autoGrow();
+        updateWordCount();
+        scheduleAutosave();
+        schedulePreview();
+    });
+    titleInput.addEventListener('input', scheduleAutosave);
+
+    btnPublish.addEventListener('click', () => {
+        publishFlag.value = 'on';
+        form.requestSubmit ? form.requestSubmit() : form.submit();
+    });
+
+    form.addEventListener('submit', () => {
+        try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+    });
+
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+            e.preventDefault();
+            publishFlag.value = '';
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+    });
+
+    updateWordCount();
+    autoGrow();
+})();
+</script>
 {% endblock %}

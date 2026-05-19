@@ -318,6 +318,13 @@ def admin_edit(post_id):
     post = Post.from_row(post_row)
     return render_template('admin_edit.html', post=post)
 
+@app.route('/admin/preview', methods=['POST'])
+def admin_preview():
+    if not is_admin():
+        return '', 403
+    return md_to_html(request.form.get('body', ''))
+
+
 @app.route('/admin/review/<int:post_id>', methods=['GET', 'POST'])
 def admin_review(post_id):
     """Admin: review a Pout draft post."""
