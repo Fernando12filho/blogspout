@@ -1,15 +1,49 @@
 import os
+import hmac
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, session, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
-from datetime import datetime
 import markdown
 from db import get_db, init_db, seed_db, slugify
 from models import Post, Comment
 
 load_dotenv()
 
+IS_PRODUCTION = bool(os.getenv('RAILWAY_ENVIRONMENT'))
+
+_secret_key = os.getenv('SECRET_KEY')
+if not _secret_key:
+    if IS_PRODUCTION:
+        raise RuntimeError('SECRET_KEY environment variable is required in production')
+    _secret_key = 'dev-insecure-local-only'
+
+_admin_password = os.getenv('ADMIN_PASSWORD', '')
+if not _admin_password and IS_PRODUCTION:
+    raise RuntimeError('ADMIN_PASSWORD environment variable is required in production')
+
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
+app.secret_key = _secret_key
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)  # trust Railway's X-Forwarded-For
+
+app.config.update(
+    SESSION_COOKIE_SECURE=IS_PRODUCTION,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    WTF_CSRF_TIME_LIMIT=3600,
+)
+
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri='memory://',
+)
 
 # Initialize database on startup
 with app.app_context():
@@ -163,16 +197,23 @@ def admin_home():
     return redirect(url_for('admin_login'))
 
 @app.route('/admin/login', methods=['GET', 'POST'])
+@limiter.limit('10 per minute', methods=['POST'])
 def admin_login():
     """Admin login."""
     if request.method == 'POST':
-        password = request.form.get('password')
-        if password == os.getenv('ADMIN_PASSWORD'):
+        password = request.form.get('password', '')
+        if _admin_password and hmac.compare_digest(password.encode('utf-8'), _admin_password.encode('utf-8')):
+            session.permanent = True
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
         else:
             return render_template('admin_login.html', error='Invalid password')
     return render_template('admin_login.html')
+
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return render_template('admin_login.html', error='Too many attempts. Please wait a minute.'), 429
 
 @app.route('/admin/logout')
 def admin_logout():

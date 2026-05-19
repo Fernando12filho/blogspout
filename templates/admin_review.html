@@ -13,6 +13,7 @@
     </div>
     
     <form method="post" class="review-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="review-actions">
             <button type="submit" name="action" value="publish" class="button button--primary">Publish</button>
             <button type="submit" name="action" value="delete" class="button button--danger" onclick="return confirm('Delete this draft?')">Delete</button>
