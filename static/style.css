@@ -603,6 +603,29 @@ body {
     background-color: var(--accent-hover);
 }
 
+/* Trigger panel on dashboard */
+.trigger-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    background: var(--surface-muted);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+.trigger-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.trigger-panel .button {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+}
+
 /* ─── Writer / editor ─── */
 .admin-writer {
     max-width: 100%;

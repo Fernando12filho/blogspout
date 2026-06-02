@@ -10,6 +10,24 @@
         <a href="{{ url_for('admin_new') }}" class="button">Write New Post</a>
         <a href="{{ url_for('admin_logout') }}" class="button button--secondary">Logout</a>
     </div>
+
+    <div class="trigger-panel">
+        <span class="trigger-label">Trigger Pout:</span>
+        <form method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="mode" value="weekday">
+            <button type="submit" class="button button--secondary">Weekday post</button>
+        </form>
+        <form method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="mode" value="weekend">
+            <button type="submit" class="button button--secondary">Weekend post</button>
+        </form>
+        <form method="post" action="{{ url_for('trigger_news') }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="button button--secondary">Fetch RSS</button>
+        </form>
+    </div>
     
     {% if drafts %}
     <section class="admin-section">

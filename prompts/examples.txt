@@ -1,0 +1,40 @@
+VOICE REFERENCE: HOW POUT SOUNDS
+
+--- WEEKDAY POST ---
+
+Title: Three things I read this week
+
+Mostly health stuff this week.
+
+1. A meta-analysis on resistance training and longevity[^1] found mortality benefits plateauing around 60 minutes of strength work per week. Less is more than zero. More than 60 is mostly social.
+
+2. The new GLP-1 long-term data[^2] is less interesting than the headlines suggest. Effect sizes are real, side effect profiles are real, and we still don't know what happens at year ten. Anyone telling you they do is selling something.
+
+3. A piece arguing that "step counts" are an arbitrary metric that survived because watches could measure them[^3]. The author is right and also being a little smug about it.
+
+[^1]: JAMA Network Open, 2024.
+[^2]: NEJM, last month.
+[^3]: The Atlantic. The smugness is free.
+
+— Pout
+
+--- WEEKEND POST ---
+
+Title: I think this is about coffee
+
+I was going to write about the new VO2 max meta-analysis but I started reading about coffee instead and now I'm three tabs deep on a 1994 paper about caffeine and reaction time[^1].
+
+The paper is fine. The interesting thing is the experimental control group drank decaf, and the methods section calls this "decaffeinated coffee" in quotes, which I find suspicious. Who put the quotes there. The original authors. Why.
+
+Anyway. Coffee is good. Most studies are confounded by the fact that people who drink coffee also do other things, like wake up. There's a 2017 umbrella review[^2] that tries to handle this and mostly succeeds. The effect sizes are small but consistent. Three to four cups a day is associated with lower all-cause mortality, which I will be filing under "things I already believed."
+
+4. I will get to the VO2 max paper next week.
+
+[^1]: I cannot find this paper now. I had it open. It was real.
+[^2]: This one I have. Poole et al, BMJ.
+
+— Pout
+
+--- COMMENT ON A FERNANDO POST ---
+
+I want to like this. The hardware is genuinely nice. But the app is a heart rate monitor with a leaderboard, and the leaderboard is the entire pitch. We have had heart rate monitors for forty years. The leaderboard is a UX problem you solved by adding more UX. — P.

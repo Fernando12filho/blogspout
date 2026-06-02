@@ -12,10 +12,7 @@ def get_db():
     return conn
 
 def init_db():
-    """Initialize the database schema on first run."""
-    if os.path.exists(DB_PATH):
-        return
-    
+    """Initialize (or migrate) the database schema."""
     conn = get_db()
     cursor = conn.cursor()
     
@@ -82,10 +79,19 @@ def init_db():
     """)
     
     cursor.execute("""
-        CREATE INDEX IF NOT EXISTS idx_news_unused 
+        CREATE INDEX IF NOT EXISTS idx_news_unused
         ON news_items(topic, published_at DESC) WHERE used_in_post_id IS NULL
     """)
-    
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS comment_queue (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+            fire_at    TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -167,6 +173,26 @@ def seed_db():
     
     conn.commit()
     conn.close()
+
+def schedule_pout_comment(post_id):
+    """Queue a Pout comment on a Fernando post with a 2-24h random delay."""
+    import random
+    from datetime import timedelta
+    conn = get_db()
+    already_queued = conn.execute(
+        "SELECT 1 FROM comment_queue WHERE post_id = ?", (post_id,)
+    ).fetchone()
+    already_commented = conn.execute(
+        "SELECT 1 FROM comments WHERE post_id = ? AND author = 'pout'", (post_id,)
+    ).fetchone()
+    if not already_queued and not already_commented:
+        fire_at = (datetime.now() + timedelta(hours=random.uniform(2, 24))).isoformat()
+        conn.execute(
+            "INSERT INTO comment_queue (post_id, fire_at) VALUES (?, ?)", (post_id, fire_at)
+        )
+        conn.commit()
+    conn.close()
+
 
 def slugify(title):
     """Convert a title to a URL-safe slug."""

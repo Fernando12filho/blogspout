@@ -8,7 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 import markdown
-from db import get_db, init_db, seed_db, slugify
+from db import get_db, init_db, seed_db, slugify, schedule_pout_comment
 from models import Post, Comment
 
 load_dotenv()
@@ -45,10 +45,13 @@ limiter = Limiter(
     storage_uri='memory://',
 )
 
-# Initialize database on startup
+# Initialize database and scheduler on startup
 with app.app_context():
     init_db()
     seed_db()
+
+from scheduler import setup_scheduler
+setup_scheduler()
 
 def md_to_html(text):
     """Convert Markdown to HTML with footnote extension."""
@@ -276,9 +279,12 @@ def admin_new():
         conn.commit()
         post_id = cursor.lastrowid
         conn.close()
-        
+
+        if publish:
+            schedule_pout_comment(post_id)
+
         return redirect(url_for('admin_dashboard'))
-    
+
     return render_template('admin_new.html')
 
 @app.route('/admin/edit/<int:post_id>', methods=['GET', 'POST'])
@@ -295,9 +301,13 @@ def admin_edit(post_id):
         body_md = request.form.get('body')
         topic = request.form.get('topic')
         publish = request.form.get('publish') == 'on'
-        
+
+        was_draft = cursor.execute(
+            "SELECT draft FROM posts WHERE id = ?", (post_id,)
+        ).fetchone()
+        was_draft = was_draft and was_draft['draft'] == 1
+
         body_html = md_to_html(body_md)
-        
         cursor.execute("""
             UPDATE posts
             SET title = ?, body_md = ?, body_html = ?, topic = ?, draft = ?
@@ -305,7 +315,10 @@ def admin_edit(post_id):
         """, (title, body_md, body_html, topic, 0 if publish else 1, post_id))
         conn.commit()
         conn.close()
-        
+
+        if publish and was_draft:
+            schedule_pout_comment(post_id)
+
         return redirect(url_for('admin_dashboard'))
     
     cursor.execute("SELECT * FROM posts WHERE id = ?", (post_id,))
@@ -336,20 +349,21 @@ def admin_review(post_id):
     
     if request.method == 'POST':
         action = request.form.get('action')
-        
+        title  = request.form.get('title', '').strip()
+        body_md = request.form.get('body', '').strip()
+        body_html = md_to_html(body_md)
+
         if action == 'publish':
-            title = request.form.get('title')
-            body_md = request.form.get('body')
-            body_html = md_to_html(body_md)
-            
             cursor.execute("""
-                UPDATE posts
-                SET title = ?, body_md = ?, body_html = ?, draft = 0
-                WHERE id = ?
+                UPDATE posts SET title=?, body_md=?, body_html=?, draft=0 WHERE id=?
+            """, (title, body_md, body_html, post_id))
+        elif action == 'save':
+            cursor.execute("""
+                UPDATE posts SET title=?, body_md=?, body_html=? WHERE id=?
             """, (title, body_md, body_html, post_id))
         elif action == 'delete':
-            cursor.execute("DELETE FROM posts WHERE id = ?", (post_id,))
-        
+            cursor.execute("DELETE FROM posts WHERE id=?", (post_id,))
+
         conn.commit()
         conn.close()
         return redirect(url_for('admin_dashboard'))
@@ -363,6 +377,27 @@ def admin_review(post_id):
     
     post = Post.from_row(post_row)
     return render_template('admin_review.html', post=post)
+
+@app.route('/admin/trigger/pout-post', methods=['POST'])
+def trigger_pout_post():
+    """Manually trigger a Pout post draft for testing."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    from pout import generate_post
+    mode = request.form.get('mode', 'weekday')
+    post_id = generate_post(mode)
+    return redirect(url_for('admin_review', post_id=post_id))
+
+
+@app.route('/admin/trigger/news', methods=['POST'])
+def trigger_news():
+    """Manually trigger RSS fetch for testing."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    from news import fetch_rss
+    fetch_rss()
+    return redirect(url_for('admin_dashboard'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

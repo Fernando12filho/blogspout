@@ -1,24 +1,123 @@
 {% extends "base.html" %}
 
-{% block title %}Review Draft - pout.blog{% endblock %}
+{% block title %}Review Draft — pout.blog{% endblock %}
 
 {% block content %}
-<div class="admin-review-post">
-    <h1>Review Draft: {{ post.title }}</h1>
-    
-    <div class="draft-preview">
-        <div class="post-content">
-            {{ post.body_html | safe }}
+<form method="post" id="post-form" class="admin-writer">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" id="action-flag" value="save">
+
+    <div class="writer-header">
+        <input
+            type="text"
+            name="title"
+            class="writer-title-input"
+            value="{{ post.title }}"
+            autocomplete="off"
+            required
+        >
+        <div class="writer-meta">
+            <span class="writer-wordcount">Pout draft &middot; {{ post.pout_mode or 'weekday' }} mode</span>
+            <span id="word-count" class="writer-wordcount">0 words</span>
+            <span id="save-status" class="writer-status"></span>
+            <div class="writer-actions">
+                <button type="submit" class="button button--secondary" id="btn-save">Save draft</button>
+                <button type="button" class="button button--primary" id="btn-publish">Publish</button>
+                <button type="button" class="button button--danger" id="btn-delete">Delete</button>
+            </div>
         </div>
     </div>
-    
-    <form method="post" class="review-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="review-actions">
-            <button type="submit" name="action" value="publish" class="button button--primary">Publish</button>
-            <button type="submit" name="action" value="delete" class="button button--danger" onclick="return confirm('Delete this draft?')">Delete</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Cancel</a>
+
+    <div class="writer-body">
+        <div class="writer-pane">
+            <textarea
+                name="body"
+                id="post-body"
+                class="writer-textarea"
+                required
+            >{{ post.body_md }}</textarea>
         </div>
-    </form>
-</div>
+        <div class="preview-pane post-content" id="preview-pane">
+            <p class="writer-placeholder">Loading preview…</p>
+        </div>
+    </div>
+</form>
+
+<script>
+(function () {
+    const form       = document.getElementById('post-form');
+    const textarea   = document.getElementById('post-body');
+    const actionFlag = document.getElementById('action-flag');
+    const preview    = document.getElementById('preview-pane');
+    const wordCountEl= document.getElementById('word-count');
+    const saveStatus = document.getElementById('save-status');
+    const btnPublish = document.getElementById('btn-publish');
+    const btnDelete  = document.getElementById('btn-delete');
+    const csrfToken  = form.querySelector('[name=csrf_token]').value;
+
+    function updateWordCount() {
+        const n = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+        wordCountEl.textContent = n + (n === 1 ? ' word' : ' words');
+    }
+
+    function autoGrow() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    let previewTimer;
+    function schedulePreview() {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(() => {
+            const body = textarea.value.trim();
+            if (!body) { preview.innerHTML = '<p class="writer-placeholder">Nothing to preview.</p>'; return; }
+            const fd = new FormData();
+            fd.append('body', body);
+            fd.append('csrf_token', csrfToken);
+            fetch('/admin/preview', { method: 'POST', body: fd })
+                .then(r => r.text())
+                .then(html => { preview.innerHTML = html; })
+                .catch(() => {});
+        }, 500);
+    }
+
+    let autosaveTimer;
+    function scheduleUnsavedNotice() {
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => { saveStatus.textContent = 'unsaved changes'; }, 800);
+    }
+
+    btnPublish.addEventListener('click', () => {
+        actionFlag.value = 'publish';
+        form.requestSubmit ? form.requestSubmit() : form.submit();
+    });
+
+    btnDelete.addEventListener('click', () => {
+        if (!confirm('Delete this draft? This cannot be undone.')) return;
+        actionFlag.value = 'delete';
+        form.requestSubmit ? form.requestSubmit() : form.submit();
+    });
+
+    form.addEventListener('submit', () => { saveStatus.textContent = ''; });
+
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+            e.preventDefault();
+            actionFlag.value = 'save';
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+    });
+
+    textarea.addEventListener('input', () => {
+        autoGrow();
+        updateWordCount();
+        scheduleUnsavedNotice();
+        schedulePreview();
+    });
+
+    updateWordCount();
+    autoGrow();
+    schedulePreview();
+})();
+</script>
 {% endblock %}
