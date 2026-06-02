@@ -35,7 +35,7 @@
                     {% if comment.author == 'fernando' %}
                         <span class="comment-author">Fernando</span>
                     {% else %}
-                        <span class="comment-author">Pout</span>
+                        <span class="comment-author comment-author--pout">Pout</span>
                     {% endif %}
                     <time class="comment-date" datetime="{{ comment.created_at }}">
                         {{ comment.created_at | replace('T', ' ') | truncate(16, True, '') }}

@@ -148,6 +148,10 @@ def about():
     """About page with disclosure."""
     return render_template('about.html')
 
+@app.route('/tdfix')
+def tdfix():
+    return render_template('tdfix.html')
+
 @app.route('/feed.xml')
 def feed():
     """RSS feed of published posts."""
