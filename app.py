@@ -61,6 +61,19 @@ def is_admin():
     """Check if user is authenticated as admin."""
     return session.get('admin') is True
 
+# Designer agent theme rendering, available in templates.
+from markupsafe import Markup
+from agents.designer import theme_head as _theme_head, build_theme_head as _build_theme_head
+
+@app.context_processor
+def _inject_theme_helpers():
+    return {
+        # Public post page: only renders when the post is in custom mode.
+        'theme_head': lambda post: Markup(_theme_head(post)),
+        # Admin preview: render a stored theme regardless of render_mode.
+        'preview_theme_head': lambda post: Markup(_build_theme_head(getattr(post, 'custom_theme', None))),
+    }
+
 @app.route('/')
 def index():
     """Homepage: latest 20 published posts, mixed authors."""
@@ -259,16 +272,17 @@ def admin_new():
         title = request.form.get('title')
         body_md = request.form.get('body')
         topic = request.form.get('topic')
+        cover_image = request.form.get('cover_image', '').strip() or None
         publish = request.form.get('publish') == 'on'
-        
+
         slug = slugify(title)
         body_html = md_to_html(body_md)
-        
+
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO posts (author, kind, topic, title, slug, body_md, body_html, draft, published_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO posts (author, kind, topic, title, slug, body_md, body_html, cover_image, draft, published_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             'fernando',
             'essay',
@@ -277,6 +291,7 @@ def admin_new():
             slug,
             body_md,
             body_html,
+            cover_image,
             0 if publish else 1,
             datetime.now().isoformat()
         ))
@@ -304,6 +319,8 @@ def admin_edit(post_id):
         title = request.form.get('title')
         body_md = request.form.get('body')
         topic = request.form.get('topic')
+        cover_image = request.form.get('cover_image', '').strip() or None
+        render_mode = 'custom' if request.form.get('render_mode') == 'custom' else 'standard'
         publish = request.form.get('publish') == 'on'
 
         was_draft = cursor.execute(
@@ -314,9 +331,9 @@ def admin_edit(post_id):
         body_html = md_to_html(body_md)
         cursor.execute("""
             UPDATE posts
-            SET title = ?, body_md = ?, body_html = ?, topic = ?, draft = ?
+            SET title = ?, body_md = ?, body_html = ?, topic = ?, cover_image = ?, render_mode = ?, draft = ?
             WHERE id = ?
-        """, (title, body_md, body_html, topic, 0 if publish else 1, post_id))
+        """, (title, body_md, body_html, topic, cover_image, render_mode, 0 if publish else 1, post_id))
         conn.commit()
         conn.close()
 
@@ -355,16 +372,18 @@ def admin_review(post_id):
         action = request.form.get('action')
         title  = request.form.get('title', '').strip()
         body_md = request.form.get('body', '').strip()
+        cover_image = request.form.get('cover_image', '').strip() or None
+        render_mode = 'custom' if request.form.get('render_mode') == 'custom' else 'standard'
         body_html = md_to_html(body_md)
 
         if action == 'publish':
             cursor.execute("""
-                UPDATE posts SET title=?, body_md=?, body_html=?, draft=0 WHERE id=?
-            """, (title, body_md, body_html, post_id))
+                UPDATE posts SET title=?, body_md=?, body_html=?, cover_image=?, render_mode=?, draft=0 WHERE id=?
+            """, (title, body_md, body_html, cover_image, render_mode, post_id))
         elif action == 'save':
             cursor.execute("""
-                UPDATE posts SET title=?, body_md=?, body_html=? WHERE id=?
-            """, (title, body_md, body_html, post_id))
+                UPDATE posts SET title=?, body_md=?, body_html=?, cover_image=?, render_mode=? WHERE id=?
+            """, (title, body_md, body_html, cover_image, render_mode, post_id))
         elif action == 'delete':
             cursor.execute("DELETE FROM posts WHERE id=?", (post_id,))
 
@@ -381,6 +400,45 @@ def admin_review(post_id):
     
     post = Post.from_row(post_row)
     return render_template('admin_review.html', post=post)
+
+@app.route('/admin/generate-layout/<int:post_id>', methods=['POST'])
+def generate_layout(post_id):
+    """Have the Designer agent design a bespoke theme + layout for a post."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    from agents.designer import generate_theme
+    generate_theme(post_id)
+    return redirect(url_for('preview_custom', post_id=post_id))
+
+
+@app.route('/admin/preview-custom/<int:post_id>')
+def preview_custom(post_id):
+    """Admin-only preview of a post's stored custom layout, inside the site shell."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    conn = get_db()
+    row = conn.execute("SELECT * FROM posts WHERE id = ?", (post_id,)).fetchone()
+    conn.close()
+    if not row:
+        return "Post not found", 404
+    post = Post.from_row(row)
+    if not post.custom_html:
+        return redirect(url_for('admin_edit', post_id=post_id))
+    return render_template('admin_preview_custom.html', post=post)
+
+
+@app.route('/admin/set-mode/<int:post_id>', methods=['POST'])
+def set_mode(post_id):
+    """Flip a post between the standard template and its custom layout."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    render_mode = 'custom' if request.form.get('render_mode') == 'custom' else 'standard'
+    conn = get_db()
+    conn.execute("UPDATE posts SET render_mode = ? WHERE id = ?", (render_mode, post_id))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
 
 @app.route('/admin/trigger/pout-post', methods=['POST'])
 def trigger_pout_post():

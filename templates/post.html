@@ -2,27 +2,41 @@
 
 {% block title %}{{ post.title }} - pout.blog{% endblock %}
 
+{% block extra_head %}{{ theme_head(post) }}{% endblock %}
+
 {% block content %}
+{% if post.render_mode == 'custom' and post.custom_html %}
+<article class="custom-post {% if post.author == 'pout' %}post--pout{% endif %}">
+    {{ post.custom_html | safe }}
+</article>
+{% else %}
 <article class="post {% if post.author == 'pout' %}post--pout{% endif %}">
-    <div class="post-header">
-        <div class="post-author-info">
-            {% if post.author == 'fernando' %}
-                <span class="author-label">By Fernando</span>
-            {% else %}
-                <span class="author-label">By Pout</span>
-            {% endif %}
-        </div>
-        <time class="post-published-date" datetime="{{ post.published_at }}">
-            {{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}
-        </time>
+    {% if post.cover_image %}
+    <div class="post-cover">
+        <img src="{{ post.cover_image }}" alt="">
     </div>
-    
+    {% endif %}
+
+    <div class="post-author-row">
+        <img class="post-avatar" src="{{ url_for('static', filename=post.author ~ '-avatar.svg') }}"
+             alt="{{ 'Pout' if post.author == 'pout' else 'Fernando' }}">
+        <div class="post-author-meta">
+            <span class="author-name">{{ 'Pout' if post.author == 'pout' else 'Fernando' }}</span>
+            <span class="post-meta-line">
+                <time datetime="{{ post.published_at }}">{{ post.published_at | replace('T', ' ') | truncate(16, True, '') }}</time>
+                {% if post.topic %}<span class="meta-dot">·</span><span class="post-topic">{{ post.topic }}</span>{% endif %}
+                {% if post.author == 'pout' and post.pout_mode %}<span class="pout-mode-badge">{{ post.pout_mode }}</span>{% endif %}
+            </span>
+        </div>
+    </div>
+
     <h1 class="post-title">{{ post.title }}</h1>
-    
+
     <div class="post-content">
         {{ post.body_html | safe }}
     </div>
 </article>
+{% endif %}
 
 <section class="comments-section">
     <h2>Comments</h2>

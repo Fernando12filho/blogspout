@@ -21,8 +21,11 @@
   --pout-border:  #1c8f68;
   --accent:       #36d39b;
   --accent-hover: #46e0aa;
+  --glow-1:       rgba(54,211,155,.08);
+  --glow-2:       rgba(255,93,93,.04);
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --display: var(--mono);
 }
 
 /* ── Reset ──────────────────────────────────────────── */
@@ -45,8 +48,8 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(1100px 600px at 75% -5%, rgba(54,211,155,.08), transparent 60%),
-    radial-gradient(800px 500px at 8%  18%, rgba(255,93,93,.04), transparent 55%);
+    radial-gradient(1100px 600px at 75% -5%, var(--glow-1), transparent 60%),
+    radial-gradient(800px 500px at 8%  18%, var(--glow-2), transparent 55%);
 }
 
 body::after {
@@ -224,6 +227,126 @@ body::after {
 .post-author-info { color: var(--muted); }
 .post--pout .post-author-info { color: var(--green); }
 .post-published-date { color: var(--faint); }
+
+/* ── Notion-style post header (cover + avatar row) ──── */
+.post-cover {
+  margin: -2rem -2rem 1.75rem;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  background: var(--panel);
+}
+.post-cover img {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+
+.post-author-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.post-author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.post-author-meta .author-name {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+.post--pout .post-author-meta .author-name { color: var(--accent); }
+.post-meta-line {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.post-meta-line .meta-dot { color: var(--faint); }
+.post-topic { color: var(--muted); }
+.pout-mode-badge {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--accent);
+  background: var(--green-dim);
+  border: 1px solid rgba(54,211,155,.22);
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+}
+
+/* ── Custom-layout posts (AI-generated, body-only) ──── */
+.custom-post {
+  padding: 2rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
+  /* containment so generated styles stay local */
+  contain: layout style;
+}
+.custom-post.post--pout {
+  background: var(--pout-wash);
+  border-color: rgba(54,211,155,.14);
+  border-left: 3px solid var(--pout-border);
+}
+
+/* ── Admin: custom-layout panel + preview bar ───────── */
+.layout-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2.5rem;
+  padding: 1rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.admin-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.admin-preview-label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.admin-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 
 .post .post-title {
   font-size: 1.7rem;
