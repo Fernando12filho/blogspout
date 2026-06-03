@@ -17,10 +17,15 @@ class Post:
     draft: int  # 0 or 1
     published_at: str  # ISO8601
     created_at: str  # ISO8601
-    
+    render_mode: str = 'standard'  # 'standard' (Notion template) or 'custom'
+    custom_html: Optional[str] = None  # body-only HTML used when render_mode == 'custom'
+    custom_theme: Optional[str] = None  # JSON theme (fonts + CSS vars) from the Designer agent
+    cover_image: Optional[str] = None  # optional cover image URL
+
     @classmethod
     def from_row(cls, row):
         """Create a Post from a sqlite3.Row."""
+        keys = row.keys()
         return cls(
             id=row['id'],
             author=row['author'],
@@ -34,7 +39,11 @@ class Post:
             excerpt=row['excerpt'],
             draft=row['draft'],
             published_at=row['published_at'],
-            created_at=row['created_at']
+            created_at=row['created_at'],
+            render_mode=(row['render_mode'] if 'render_mode' in keys else None) or 'standard',
+            custom_html=row['custom_html'] if 'custom_html' in keys else None,
+            custom_theme=row['custom_theme'] if 'custom_theme' in keys else None,
+            cover_image=row['cover_image'] if 'cover_image' in keys else None,
         )
 
 @dataclass

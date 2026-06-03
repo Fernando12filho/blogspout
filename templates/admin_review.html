@@ -18,6 +18,21 @@
         >
         <div class="writer-meta">
             <span class="writer-wordcount">Pout draft &middot; {{ post.pout_mode or 'weekday' }} mode</span>
+            <label class="writer-meta-label">
+                Cover URL
+                <input type="text" name="cover_image" value="{{ post.cover_image or '' }}" placeholder="https://…" autocomplete="off">
+            </label>
+            {% if post.custom_html %}
+            <label class="writer-meta-label">
+                Layout
+                <select name="render_mode">
+                    <option value="standard" {% if post.render_mode != 'custom' %}selected{% endif %}>Standard</option>
+                    <option value="custom" {% if post.render_mode == 'custom' %}selected{% endif %}>Custom</option>
+                </select>
+            </label>
+            {% else %}
+            <input type="hidden" name="render_mode" value="standard">
+            {% endif %}
             <span id="word-count" class="writer-wordcount">0 words</span>
             <span id="save-status" class="writer-status"></span>
             <div class="writer-actions">
@@ -42,6 +57,18 @@
         </div>
     </div>
 </form>
+
+<div class="layout-panel">
+    <form method="post" action="{{ url_for('generate_layout', post_id=post.id) }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="button button--secondary">{{ 'Regenerate' if post.custom_html else 'Generate' }} custom layout (AI)</button>
+    </form>
+    {% if post.custom_html %}
+    <a href="{{ url_for('preview_custom', post_id=post.id) }}" class="button button--secondary" target="_blank">Preview custom layout</a>
+    <span class="writer-status">custom layout stored{% if post.render_mode == 'custom' %} · live{% endif %}</span>
+    {% endif %}
+    <span class="writer-status">Generation uses the last saved body — save first.</span>
+</div>
 
 <script>
 (function () {

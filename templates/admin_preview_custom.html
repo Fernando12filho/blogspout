@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Custom layout preview — {{ post.title }}{% endblock %}
+
+{% block extra_head %}{{ preview_theme_head(post) }}{% endblock %}
+
+{% block content %}
+<div class="admin-preview-bar">
+    <span class="admin-preview-label">
+        Custom layout preview
+        {% if post.render_mode == 'custom' %}<span class="pout-mode-badge">live</span>{% else %}<span class="post-topic">not yet applied</span>{% endif %}
+    </span>
+    <div class="admin-preview-actions">
+        <form method="post" action="{{ url_for('generate_layout', post_id=post.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="button button--secondary">Regenerate</button>
+        </form>
+        {% if post.render_mode == 'custom' %}
+        <form method="post" action="{{ url_for('set_mode', post_id=post.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="render_mode" value="standard">
+            <button type="submit" class="button button--secondary">Revert to standard</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('set_mode', post_id=post.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="render_mode" value="custom">
+            <button type="submit" class="button button--primary">Use this layout</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('admin_dashboard') }}" class="button button--secondary">Back</a>
+    </div>
+</div>
+
+<article class="custom-post {% if post.author == 'pout' %}post--pout{% endif %}">
+    {{ post.custom_html | safe }}
+</article>
+{% endblock %}

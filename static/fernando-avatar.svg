@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Fernando">
+  <circle cx="32" cy="32" r="31" fill="#0d1211" stroke="rgba(233,239,235,.22)" stroke-width="1.5"/>
+  <text x="32" y="33" text-anchor="middle" dominant-baseline="central"
+        font-family="'IBM Plex Mono', ui-monospace, Menlo, monospace" font-size="30" font-weight="600"
+        fill="#e9efeb">F</text>
+</svg>

@@ -92,8 +92,27 @@ def init_db():
         )
     """)
 
+    _migrate(conn)
+
     conn.commit()
     conn.close()
+
+def _migrate(conn):
+    """Add columns to existing tables that CREATE TABLE IF NOT EXISTS won't add.
+
+    Idempotent: safe to run on every boot, locally and on Railway's existing
+    /data/blog.db.
+    """
+    existing = {row['name'] for row in conn.execute("PRAGMA table_info(posts)")}
+    additions = {
+        'render_mode': "TEXT NOT NULL DEFAULT 'standard'",
+        'custom_html': "TEXT",
+        'custom_theme': "TEXT",
+        'cover_image': "TEXT",
+    }
+    for column, definition in additions.items():
+        if column not in existing:
+            conn.execute(f"ALTER TABLE posts ADD COLUMN {column} {definition}")
 
 def seed_db():
     """Seed initial posts if database is empty."""
