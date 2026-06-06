@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Custom layout preview — {{ post.title }}{% endblock %}
+{% block title %}Custom layout preview · {{ post.title }}{% endblock %}
 
 {% block extra_head %}{{ preview_theme_head(post) }}{% endblock %}
 
@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<article class="custom-post {% if post.author == 'pout' %}post--pout{% endif %}">
+<article class="custom-post {% if post.author == 'pout' %}post--pout{% else %}post--fernando{% endif %}">
     {{ post.custom_html | safe }}
 </article>
 {% endblock %}

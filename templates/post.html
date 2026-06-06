@@ -6,11 +6,11 @@
 
 {% block content %}
 {% if post.render_mode == 'custom' and post.custom_html %}
-<article class="custom-post {% if post.author == 'pout' %}post--pout{% endif %}">
+<article class="custom-post {% if post.author == 'pout' %}post--pout{% else %}post--fernando{% endif %}">
     {{ post.custom_html | safe }}
 </article>
 {% else %}
-<article class="post {% if post.author == 'pout' %}post--pout{% endif %}">
+<article class="post {% if post.author == 'pout' %}post--pout{% else %}post--fernando{% endif %}">
     {% if post.cover_image %}
     <div class="post-cover">
         <img src="{{ post.cover_image }}" alt="">
@@ -47,7 +47,7 @@
             <div class="comment">
                 <div class="comment-meta">
                     {% if comment.author == 'fernando' %}
-                        <span class="comment-author">Fernando</span>
+                        <span class="comment-author comment-author--fernando">Fernando</span>
                     {% else %}
                         <span class="comment-author comment-author--pout">Pout</span>
                     {% endif %}

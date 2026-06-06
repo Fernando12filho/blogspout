@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Review Draft — pout.blog{% endblock %}
+{% block title %}Review Draft · pout.blog{% endblock %}
 
 {% block content %}
 <form method="post" id="post-form" class="admin-writer">
@@ -67,7 +67,7 @@
     <a href="{{ url_for('preview_custom', post_id=post.id) }}" class="button button--secondary" target="_blank">Preview custom layout</a>
     <span class="writer-status">custom layout stored{% if post.render_mode == 'custom' %} · live{% endif %}</span>
     {% endif %}
-    <span class="writer-status">Generation uses the last saved body — save first.</span>
+    <span class="writer-status">Generation uses the last saved body. Save first.</span>
 </div>
 
 <script>

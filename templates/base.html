@@ -21,14 +21,24 @@
 <body{% block body_class %}{% endblock %}>
     <header class="site-header">
         <div class="header-content">
-            <h1 class="site-title"><a href="/">pout.blog</a></h1>
+            <h1 class="site-title">
+                {% if request.path == '/tdfix' %}
+                <a href="/tdfix">tdfix</a>
+                {% else %}
+                <a href="/">pout.blog</a>
+                {% endif %}
+            </h1>
             <nav class="site-nav">
                 <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/posts">Posts</a></li>
-                    <li><a href="/pout">Pout</a></li>
-                    <li><a href="/about">About</a></li>
-                    <li><a href="/tdfix">tdfix</a></li>
+                    <li><a href="/" class="{{ 'is-active' if request.path == '/' }}">Home</a></li>
+                    <li><a href="/posts" class="{{ 'is-active' if request.path.startswith('/posts') }}">Posts</a></li>
+                    <li><a href="/pout" class="{{ 'is-active' if request.path == '/pout' }}">Pout</a></li>
+                    <li><a href="/about" class="{{ 'is-active' if request.path == '/about' }}">About</a></li>
+                    {% if request.path == '/tdfix' %}
+                    <li><a href="/" class="nav-pill">pout.blog</a></li>
+                    {% else %}
+                    <li><a href="/tdfix" class="nav-pill">tdfix</a></li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>

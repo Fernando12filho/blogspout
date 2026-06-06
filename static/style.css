@@ -19,6 +19,9 @@
   --green-deep:   #1c8f68;
   --pout-wash:    rgba(54,211,155,.04);
   --pout-border:  #1c8f68;
+  --tl-yellow:    #febc2e;
+  --fern-wash:    rgba(254,188,46,.045);
+  --fern-border:  #9c7a1e;
   --accent:       #36d39b;
   --accent-hover: #46e0aa;
   --glow-1:       rgba(54,211,155,.08);
@@ -61,6 +64,9 @@ body::after {
   -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000, transparent 75%);
           mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000, transparent 75%);
 }
+
+/* tdfix page: amber atmosphere instead of green (top-right glow) */
+body.page-tdfix { --glow-1: rgba(254,188,46,.09); }
 
 /* ── Layout shell ───────────────────────────────────── */
 .site-header, .site-main, .site-footer {
@@ -125,8 +131,9 @@ body::after {
 }
 
 .site-nav a:hover { color: var(--fg); }
+.site-nav a.is-active { color: var(--fg); }
 
-.site-nav a[href="/tdfix"] {
+.site-nav a.nav-pill {
   color: var(--green);
   border: 1px solid var(--green-dim);
   background: var(--green-dim);
@@ -136,7 +143,7 @@ body::after {
   letter-spacing: .05em;
 }
 
-.site-nav a[href="/tdfix"]:hover {
+.site-nav a.nav-pill:hover {
   background: rgba(54,211,155,.22);
 }
 
@@ -169,6 +176,14 @@ body::after {
 
 .post-card--pout:hover { border-color: var(--green-deep); }
 
+.post-card--fernando {
+  background: var(--fern-wash);
+  border-color: rgba(254,188,46,.13);
+  border-left: 3px solid var(--fern-border);
+}
+
+.post-card--fernando:hover { border-color: var(--tl-yellow); }
+
 .post-meta {
   display: flex;
   gap: 1rem;
@@ -182,7 +197,8 @@ body::after {
 .post-author { font-weight: 500; }
 .author-name { color: var(--muted); }
 .post-card--pout .author-name { color: var(--green); }
-.post-date { color: var(--faint); }
+.post-card--fernando .author-name { color: var(--tl-yellow); }
+.post-date { color: var(--faint); white-space: nowrap; }
 
 .post-title {
   font-family: var(--mono);
@@ -212,6 +228,12 @@ body::after {
   border-left: 3px solid var(--pout-border);
 }
 
+.post--fernando {
+  background: var(--fern-wash);
+  border-color: rgba(254,188,46,.13);
+  border-left: 3px solid var(--fern-border);
+}
+
 .post-header {
   display: flex;
   justify-content: space-between;
@@ -226,6 +248,7 @@ body::after {
 
 .post-author-info { color: var(--muted); }
 .post--pout .post-author-info { color: var(--green); }
+.post--fernando .post-author-info { color: var(--tl-yellow); }
 .post-published-date { color: var(--faint); }
 
 /* ── Notion-style post header (cover + avatar row) ──── */
@@ -267,6 +290,7 @@ body::after {
   color: var(--fg);
 }
 .post--pout .post-author-meta .author-name { color: var(--accent); }
+.post--fernando .post-author-meta .author-name { color: var(--tl-yellow); }
 .post-meta-line {
   font-family: var(--mono);
   font-size: 0.74rem;
@@ -303,6 +327,11 @@ body::after {
   background: var(--pout-wash);
   border-color: rgba(54,211,155,.14);
   border-left: 3px solid var(--pout-border);
+}
+.custom-post.post--fernando {
+  background: var(--fern-wash);
+  border-color: rgba(254,188,46,.13);
+  border-left: 3px solid var(--fern-border);
 }
 
 /* ── Admin: custom-layout panel + preview bar ───────── */
@@ -473,6 +502,7 @@ body::after {
 
 .comment-author { font-weight: 600; color: var(--muted); }
 .comment-author--pout { color: var(--green); }
+.comment-author--fernando { color: var(--tl-yellow); }
 .comment-date { color: var(--faint); }
 
 .comment-body { color: var(--fg); font-size: 0.95rem; line-height: 1.65; }

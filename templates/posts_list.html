@@ -30,7 +30,7 @@
     
     {% if posts %}
         {% for post in posts %}
-        <article class="post-card {% if post.author == 'pout' %}post-card--pout{% endif %}">
+        <article class="post-card {% if post.author == 'pout' %}post-card--pout{% else %}post-card--fernando{% endif %}">
             <div class="post-meta">
                 <div class="post-author">
                     {% if post.author == 'fernando' %}
