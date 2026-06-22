@@ -11,14 +11,19 @@
         <a href="{{ url_for('admin_logout') }}" class="button button--secondary">Logout</a>
     </div>
 
+    <div id="gen-loader" style="position:fixed;inset:0;background:rgba(7,10,9,.92);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem">
+        <div style="width:28px;height:28px;border:2px solid #1c8f68;border-top-color:#36d39b;border-radius:50%;animation:spin .75s linear infinite"></div>
+        <p style="font-family:var(--mono);color:var(--muted);font-size:.85rem;margin:0">Pout is writing...</p>
+    </div>
+
     <div class="trigger-panel">
         <span class="trigger-label">Trigger Pout:</span>
-        <form method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
+        <form class="trigger-pout-form" method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="mode" value="weekday">
             <button type="submit" class="button button--secondary">Weekday post</button>
         </form>
-        <form method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
+        <form class="trigger-pout-form" method="post" action="{{ url_for('trigger_pout_post') }}" style="display:inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="mode" value="weekend">
             <button type="submit" class="button button--secondary">Weekend post</button>
@@ -28,6 +33,14 @@
             <button type="submit" class="button button--secondary">Fetch RSS</button>
         </form>
     </div>
+
+    <script>
+      document.querySelectorAll('.trigger-pout-form').forEach(function(form) {
+        form.addEventListener('submit', function() {
+          document.getElementById('gen-loader').style.display = 'flex';
+        });
+      });
+    </script>
     
     {% if drafts %}
     <section class="admin-section">
@@ -53,6 +66,10 @@
                         {% else %}
                             <a href="{{ url_for('admin_edit', post_id=post.id) }}">Edit</a>
                         {% endif %}
+                        <form method="post" action="{{ url_for('admin_delete', post_id=post.id) }}" style="display:inline" onsubmit="return confirm('Delete “{{ post.title }}”? This cannot be undone.')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="button button--danger" style="font-size:.75rem;padding:.2rem .55rem">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -82,6 +99,10 @@
                     <td>
                         <a href="/posts/{{ post.slug }}">View</a>
                         <a href="{{ url_for('admin_edit', post_id=post.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('admin_delete', post_id=post.id) }}" style="display:inline" onsubmit="return confirm('Delete "{{ post.title }}"? This cannot be undone.')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="button button--danger" style="font-size:.75rem;padding:.2rem .55rem">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

@@ -401,6 +401,18 @@ def admin_review(post_id):
     post = Post.from_row(post_row)
     return render_template('admin_review.html', post=post)
 
+@app.route('/admin/delete/<int:post_id>', methods=['POST'])
+def admin_delete(post_id):
+    """Delete any post (draft or published) by id."""
+    if not is_admin():
+        return redirect(url_for('admin_login'))
+    conn = get_db()
+    conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+
 @app.route('/admin/generate-layout/<int:post_id>', methods=['POST'])
 def generate_layout(post_id):
     """Have the Designer agent design a bespoke theme + layout for a post."""
