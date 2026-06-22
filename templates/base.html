@@ -12,7 +12,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}pout.blog{% endblock %}</title>
-    <style>html,body{background:#070a09;color:#e9efeb;margin:0}</style>
+    <style>
+      html,body{background:#070a09;color:#e9efeb;margin:0}
+      #page-loader{position:fixed;inset:0;background:#070a09;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .25s}
+      #page-loader.done{opacity:0;pointer-events:none}
+      @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -21,6 +26,8 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body{% block body_class %}{% endblock %}>
+    <div id="page-loader"><div style="width:22px;height:22px;border:2px solid #1c8f68;border-top-color:#36d39b;border-radius:50%;animation:spin .75s linear infinite"></div></div>
+    <script>document.addEventListener('DOMContentLoaded',function(){var l=document.getElementById('page-loader');l.classList.add('done');setTimeout(function(){l.remove()},300)})</script>
     <header class="site-header">
         <div class="header-content">
             <h1 class="site-title">
